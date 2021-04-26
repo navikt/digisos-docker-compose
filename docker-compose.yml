@@ -1,0 +1,30 @@
+version: '3.9'
+services:
+
+  sosialhjelp-mock-alt:
+    container_name: sosialhjelp-mock-alt
+    image: docker.pkg.github.com/navikt/sosialhjelp-mock-alt/sosialhjelp-mock-alt:1.1_20210421.1533_00c30d1
+    ports:
+      - "5000:5000"
+    networks:
+      digisos.docker-internal:
+        aliases:
+          - sosialhjelp-mock-alt.digisos.docker-internal
+
+  sosialhjelp-mock-alt-api:
+    container_name: sosialhjelp-mock-alt-api
+    image: docker.pkg.github.com/navikt/sosialhjelp-mock-alt-api/sosialhjelp-mock-alt-api:1.1_20210423.1116_29a263e
+    ports:
+      - "8989:8989"
+    networks:
+      digisos.docker-internal:
+        aliases:
+          - sosialhjelp-mock-alt-api.digisos.docker-internal
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:8989/sosialhjelp/mock-alt-api/internal/isAlive" ]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+networks:
+  digisos.docker-internal:
