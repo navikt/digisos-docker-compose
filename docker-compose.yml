@@ -3,7 +3,7 @@ services:
 
   sosialhjelp-mock-alt:
     container_name: sosialhjelp-mock-alt
-    image: docker.pkg.github.com/navikt/sosialhjelp-mock-alt/sosialhjelp-mock-alt:1.1_20210421.1533_00c30d1
+    image: docker.pkg.github.com/navikt/sosialhjelp-mock-alt/sosialhjelp-mock-alt:latest
     ports:
       - "5000:5000"
     networks:
@@ -13,7 +13,7 @@ services:
 
   sosialhjelp-mock-alt-api:
     container_name: sosialhjelp-mock-alt-api
-    image: docker.pkg.github.com/navikt/sosialhjelp-mock-alt-api/sosialhjelp-mock-alt-api:1.1_20210423.1116_29a263e
+    image: docker.pkg.github.com/navikt/sosialhjelp-mock-alt-api/sosialhjelp-mock-alt-api:latest
     ports:
       - "8989:8989"
     networks:
