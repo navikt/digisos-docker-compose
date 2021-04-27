@@ -5,7 +5,7 @@ services:
     container_name: sosialhjelp-mock-alt
     image: docker.pkg.github.com/navikt/sosialhjelp-mock-alt/sosialhjelp-mock-alt:latest
     ports:
-      - "5000:5000"
+      - "3008:5000"
     networks:
       digisos.docker-internal:
         aliases:
