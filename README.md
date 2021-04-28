@@ -14,4 +14,7 @@ https://docs.github.com/en/packages/guides/configuring-docker-for-use-with-githu
 Lag et Personal Access Token med scope `read:packages`. Husk å enable SSO.\
 Deretter kjør `cat ~/TOKEN.txt | docker login https://docker.pkg.github.com -u USERNAME --password-stdin` hvor `USERNAME` er ditt Github-brukernavn.
 
-Det kan hende du må logge ut før du forsøker å logge inn.
+
+### Debugging
+Hvis du får merkelige feilmeldinger om nedlasting av metadata så kan du prøve docker logout og ny login.\
+Kanskje relevant tråd: https://github.com/docker/buildx/issues/476
