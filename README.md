@@ -3,6 +3,10 @@ Docker-compose oppsett for digisos. For å gjøre lokal utvikling enklere.
 
 Kjør `docker-compose up`
 
+Kommando for å hente ned nyeste images: \
+`docker-compose pull`
+(NB: må være innlogget)
+
 ## Lokal utvikling
 ### Docker-minne
 Det kan være nødvendig å justere minne til Docker.
