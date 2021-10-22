@@ -26,5 +26,24 @@ services:
       timeout: 2s
       retries: 10
 
+  sosialhjelp-soknad-api:
+    container_name: sosialhjelp-soknad-api
+    image: docker.pkg.github.com/navikt/sosialhjelp-soknad-api/sosialhjelp-soknad-api:1.1_20211022.0958_a5cc77f # todo: latest
+    ports:
+      - "8181:8181"
+    networks:
+      digisos.docker-internal:
+        aliases:
+          - sosialhjelp-soknad-api.digisos.docker-internal
+#    healthcheck:
+#      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:8181/sosialhjelp/soknad-api/internal/isAlive" ]
+#      interval: 2s
+#      timeout: 2s
+#      retries: 10
+    depends_on:
+      - sosialhjelp-mock-alt-api
+    env_file:
+      - soknad-api.env
+
 networks:
   digisos.docker-internal:
