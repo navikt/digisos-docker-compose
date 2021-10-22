@@ -25,6 +25,8 @@ services:
       interval: 2s
       timeout: 2s
       retries: 10
+    environment:
+      - HOST_ADDRESS=http://sosialhjelp-mock-alt-api.digisos.docker-internal:8989/
 
   sosialhjelp-soknad-api:
     container_name: sosialhjelp-soknad-api
