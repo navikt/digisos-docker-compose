@@ -37,11 +37,11 @@ services:
       digisos.docker-internal:
         aliases:
           - sosialhjelp-soknad-api.digisos.docker-internal
-#    healthcheck:
-#      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:8181/sosialhjelp/soknad-api/internal/isAlive" ]
-#      interval: 2s
-#      timeout: 2s
-#      retries: 10
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:8181/sosialhjelp/soknad-api/internal/isAlive" ]
+      interval: 2s
+      timeout: 2s
+      retries: 10
     depends_on:
       - sosialhjelp-mock-alt-api
     env_file:
