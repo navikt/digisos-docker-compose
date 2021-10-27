@@ -25,6 +25,9 @@ services:
       interval: 2s
       timeout: 2s
       retries: 10
+    environment:
+      - INNSYN_API_VIA_DOCKER_COMPOSE=${INNSYN_API_DOCKER_COMPOSE:-true}
+      - SOKNAD_API_VIA_DOCKER_COMPOSE=${SOKNAD_API_DOCKER_COMPOSE:-true}
 
   sosialhjelp-soknad-api:
     container_name: sosialhjelp-soknad-api

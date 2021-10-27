@@ -1,7 +1,11 @@
 # digisos-docker-compose
 Docker-compose oppsett for digisos. For å gjøre lokal utvikling enklere.
 
+Starte alle services:\
 Kjør `docker-compose up`
+
+Starte opp med `local.env` - for å si at innsyn-api og soknad-api kjører lokalt (f.eks via IntelliJ):\
+Kjør `docker-compose --env-file local.env up sosialhjelp-mock-alt sosialhjelp-mock-alt-api`
 
 Kommando for å hente ned nyeste images: \
 `docker-compose pull`
