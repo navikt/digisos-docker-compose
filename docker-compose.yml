@@ -41,9 +41,32 @@ services:
       timeout: 2s
       retries: 10
     depends_on:
-      - sosialhjelp-mock-alt-api
+      sosialhjelp-mock-alt-api:
+        condition: service_healthy
     env_file:
       - soknad-api.env
+
+
+  sosialhjelp-innsyn-api:
+    container_name: sosialhjelp-innsyn-api
+    image: docker.pkg.github.com/navikt/sosialhjelp-innsyn-api/sosialhjelp-innsyn-api:latest
+    ports:
+      - "8080:8080"
+    networks:
+      digisos.docker-internal:
+        aliases:
+          - sosialhjelp-innsyn-api.digisos.docker-internal
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:8080/sosialhjelp/innsyn-api/internal/isAlive" ]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+    depends_on:
+      sosialhjelp-mock-alt-api:
+        condition: service_healthy
+    env_file:
+      - innsyn-api.env
+
 
 networks:
   digisos.docker-internal:
