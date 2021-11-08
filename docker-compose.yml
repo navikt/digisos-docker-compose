@@ -67,8 +67,10 @@ services:
     depends_on:
       sosialhjelp-mock-alt-api:
         condition: service_healthy
-    env_file:
-      - innsyn-api.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=mock-alt,log-console,no-redis
+      - MOCK_ALT_API_HOST=sosialhjelp-mock-alt-api.digisos.docker-internal
+      - MOCK_ALT_API_WELLKNOWN_QUERYPARAM=?host=${MOCK_ALT_API_HOST}
 
   sosialhjelp-modia-api:
     container_name: sosialhjelp-modia-api
