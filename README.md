@@ -23,6 +23,10 @@ Lag et Personal Access Token med scope `read:packages`, og husk å enable SSO. L
 Deretter kjør `cat ~/TOKEN.txt | docker login https://docker.pkg.github.com -u USERNAME --password-stdin` hvor `USERNAME` er ditt Github-brukernavn.\
 Evt: `cat ~/TOKEN.txt | docker login https://docker.pkg.github.com -u x-access-token --password-stdin`
 
+For å unngå å få tokenet lagret i klartekst lokalt, kan man bruke docker-credential-helper (https://github.com/docker/docker-credential-helper). På MAC kan dette ordnes ved å gjøre følgende: \
+kjør `brew install docker-credential-helper` \
+og skriv `"credsStore": "osxkeychain"` i ~/.docker/config.json
+
 ### Debugging
 Hvis du får merkelige feilmeldinger om nedlasting av metadata så kan du prøve docker logout og ny login.\
 Kanskje relevant tråd: https://github.com/docker/buildx/issues/476
