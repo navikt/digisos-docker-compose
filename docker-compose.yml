@@ -93,7 +93,7 @@ services:
     container_name: fagsystem-mock
     image: ghcr.io/navikt/sosialhjelp-woldena-tm/sosialhjelp-woldena-tm:latest
     ports:
-      - "3009:5001"
+      - "3009:8080"
     networks:
       digisos.docker-internal:
         aliases:
