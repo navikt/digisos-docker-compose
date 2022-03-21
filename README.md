@@ -1,31 +1,67 @@
 # digisos-docker-compose
 Docker-compose oppsett for digisos. For å gjøre lokal utvikling enklere.
 
-Starte alle services:\
-Kjør `docker-compose up`
+## Eksempler
 
-Starte opp med `local.env` - for å si at innsyn-api og soknad-api kjører lokalt (f.eks via IntelliJ):\
-Kjør `docker-compose --env-file local.env up sosialhjelp-mock-alt sosialhjelp-mock-alt-api`
+For å starte alle tjenester:
 
-Kommando for å hente ned nyeste images: \
-`docker-compose pull`
-(NB: må være innlogget)
+```shell
+docker-compose up
+```
 
-## Lokal utvikling
+Du kan hente miljøvariabler fra en env-fil, bruk `--env-file`
+
+```shell
+docker-compose --env-file local.env up
+```
+
+For å starte et subsett av tjenester, spesifiser dem etter «up»:
+
+```shell\
+docker-compose up sosialhjelp-mock-alt \
+                  sosialhjelp-mock-alt-api
+```
+
+For å hente nyeste versjon av images:
+
+```shell
+docker-compose pull
+```
+
+## Autentisering
+
+For å laste ned images fra Github Container Registry, må man være autentisert.
+
+Lag et Personal Access Token med scope `read:packages`, og husk å enable SSO
+(ref: [«Creating a personal access token»](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)).
+
+Gitt brukernavn `$USERNAME` og din PAT lagret i `TOKEN.txt`, kan du kjøre:
+
+```shell
+cat ~/TOKEN.txt | docker login ghcr.io -u $USERNAME --password-stdin
+```
+
+Utfyllende dokumentasjon om innlogging:
+[Authenticating to the Container registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry)
+
+
+### Mac
+
+For å unngå å få tokenet lagret i klartekst lokalt, kan man bruke [docker-credential-helper](https://github.com/docker/docker-credential-helpers).
+
+Kort oppsummert:
+* Kjør `brew install docker-credential-helper`
+* Sett `credsStore` til `osxkeychain` i ~/.docker/config.json, eks:
+  ```json
+  {
+    "credsStore": "osxkeychain"
+  }
+  ```
+
+
+## Caveats
 ### Docker-minne
 Det kan være nødvendig å justere minne til Docker.
-
-### Docker-login
-For å laste ned images fra Github Package Registry må man være autentisert. For å autentisere deg mot Github, se:\
-https://docs.github.com/en/packages/guides/configuring-docker-for-use-with-github-packages#authenticating-with-a-personal-access-token
-
-Lag et Personal Access Token med scope `read:packages`, og husk å enable SSO. Lagre tokenet i en fil, eks `TOKEN.txt`\
-Deretter kjør `cat ~/TOKEN.txt | docker login https://docker.pkg.github.com -u USERNAME --password-stdin` hvor `USERNAME` er ditt Github-brukernavn.\
-Evt: `cat ~/TOKEN.txt | docker login https://docker.pkg.github.com -u x-access-token --password-stdin`
-
-For å unngå å få tokenet lagret i klartekst lokalt, kan man bruke docker-credential-helper (https://github.com/docker/docker-credential-helpers). På MAC kan dette ordnes ved å gjøre følgende: \
-kjør `brew install docker-credential-helper` \
-og skriv `"credsStore": "osxkeychain"` i ~/.docker/config.json
 
 ### Debugging
 Hvis du får merkelige feilmeldinger om nedlasting av metadata så kan du prøve docker logout og ny login.\
