@@ -5,7 +5,7 @@ services:
     container_name: sosialhjelp-mock-alt
     image: ghcr.io/navikt/sosialhjelp-mock-alt/sosialhjelp-mock-alt:latest
     ports:
-      - "3008:5000"
+      - "3008:3008"
     networks:
       digisos.docker-internal:
         aliases:
@@ -21,7 +21,7 @@ services:
         aliases:
           - sosialhjelp-mock-alt-api.digisos.docker-internal
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:8989/sosialhjelp/mock-alt-api/internal/isAlive" ]
+      test: [ "CMD", "curl", "--silent", "--fail", "http://localhost:8989/sosialhjelp/mock-alt-api/internal/isAlive" ]
       interval: 2s
       timeout: 2s
       retries: 10
