@@ -92,6 +92,9 @@ configs:
             proxy_set_header X-Forwarded-Proto $$scheme;
           }
 
+          location /sosialhjelp/soknad/oauth2 { proxy_pass http://host.docker.internal:3000/oauth2; }
+          location /sosialhjelp/soknad/oauth2 { proxy_pass http://host.docker.internal:3000/oauth2; }
+
           location /sosialhjelp/soknad {
             proxy_pass http://host.docker.internal:3001;
             proxy_set_header Host $$host;
