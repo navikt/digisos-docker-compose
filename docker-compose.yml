@@ -28,7 +28,10 @@ services:
     ports:
       - "8888:8080"
     environment:
-      JSON_CONFIG: "{\"interactiveLogin\":true}"
+      JSON_CONFIG: "{\"interactiveLogin\":true, \"loginPagePath\": \"/tmp/login.html\"}"
+    configs:
+      - source: login_html
+        target: /tmp/login.html
 
   wonderwall:
     image: ghcr.io/nais/wonderwall:latest
@@ -81,7 +84,7 @@ configs:
         server {
           listen 4000;
 
-          location /echo {
+          location / {
             proxy_pass http://echo:3100;
             proxy_set_header Host $$host;
             proxy_set_header X-Real-IP $$remote_addr;
@@ -114,3 +117,5 @@ configs:
           }
         }
       }
+  login_html:
+    file: ./login.html
