@@ -40,7 +40,7 @@ services:
     command: >
       --openid.client-id=bogus
       --openid.client-secret=not-so-secret
-      --openid.well-known-url=http://localhost:8888/default/.well-known/openid-configuration
+      --openid.well-known-url=http://localhost:8888/mock-issuer/.well-known/openid-configuration
       --ingress=http://localhost:3000
       --bind-address=0.0.0.0:3000
       --upstream-host=nginx:4000
@@ -72,6 +72,12 @@ services:
     configs:
       - source: nginx_conf
         target: /etc/nginx/nginx.conf
+    extra_hosts:
+      # Wonderwall needs to both reach and redirect user agents to the mock-oauth2-server:
+      # - 'mock-oauth2-server:8888' resolves from the container, but is not resolvable for user agents at the host (e.g. during redirects).
+      # - 'localhost:8888' allows user agents to resolve redirects to the mock-oauth2-server, but breaks connectivity from the container itself.
+      # This additional mapping allows the container to reach the mock-oauth2-server at 'localhost' through the host network, as well as allowing user agents to correctly resolve redirects.
+      - host-machine:host-gateway
 
 configs:
   nginx_conf:
@@ -92,11 +98,19 @@ configs:
             proxy_set_header X-Forwarded-Proto $$scheme;
           }
 
-          location /sosialhjelp/soknad/oauth2 { proxy_pass http://host.docker.internal:3000/oauth2; }
-          location /sosialhjelp/soknad/oauth2 { proxy_pass http://host.docker.internal:3000/oauth2; }
+          location /sosialhjelp/soknad/oauth2 { proxy_pass http://host-machine:3000/oauth2; }
+          location /sosialhjelp/innsyn/oauth2 { proxy_pass http://host-machine:3000/oauth2; }
+
+          location /sosialhjelp/innsyn {
+            proxy_pass http://host-machine:3002;
+            proxy_set_header Host $$host;
+            proxy_set_header X-Real-IP $$remote_addr;
+            proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $$scheme;
+          }
 
           location /sosialhjelp/soknad {
-            proxy_pass http://host.docker.internal:3001;
+            proxy_pass http://host-machine:3001;
             proxy_set_header Host $$host;
             proxy_set_header X-Real-IP $$remote_addr;
             proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
@@ -104,20 +118,13 @@ configs:
           }
 
           location /sosialhjelp/mock-alt {
-            proxy_pass http://host.docker.internal:3008;
+            proxy_pass http://host-machine:3008;
             proxy_set_header Host $$host;
             proxy_set_header X-Real-IP $$remote_addr;
             proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $$scheme;
           }
 
-          location /sosialhjelp/innsyn {
-            proxy_pass http://localhost:3002;
-            proxy_set_header Host $$host;
-            proxy_set_header X-Real-IP $$remote_addr;
-            proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $$scheme;
-          }
         }
       }
   login_html:
