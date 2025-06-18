@@ -1,13 +1,12 @@
 services:
   sosialhjelp-mock-alt:
     container_name: sosialhjelp-mock-alt
-    platform: linux/amd64
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt:latest
     network_mode: host
 
 #  sosialhjelp-mock-alt-api:
 #    container_name: sosialhjelp-mock-alt-api
-#    image: ghcr.io/navikt/sosialhjelp-mock-alt-api/sosialhjelp-mock-alt-api:latest
+#    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:latest
 #    network_mode: host
 #    healthcheck:
 #      test: [ "CMD", "curl", "--silent", "--fail", "http://localhost:8989/sosialhjelp/mock-alt-api/internal/isAlive" ]
