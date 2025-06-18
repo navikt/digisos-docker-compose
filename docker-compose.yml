@@ -1,104 +1,112 @@
-version: '3.9'
 services:
-
   sosialhjelp-mock-alt:
     container_name: sosialhjelp-mock-alt
-    image: ghcr.io/navikt/sosialhjelp-mock-alt/sosialhjelp-mock-alt:latest
-    ports:
-      - "3008:3008"
-    networks:
-      digisos.docker-internal:
-        aliases:
-          - sosialhjelp-mock-alt.digisos.docker-internal
+    platform: linux/amd64
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt:latest
+    network_mode: host
 
-  sosialhjelp-mock-alt-api:
-    container_name: sosialhjelp-mock-alt-api
-    image: ghcr.io/navikt/sosialhjelp-mock-alt-api/sosialhjelp-mock-alt-api:latest
+#  sosialhjelp-mock-alt-api:
+#    container_name: sosialhjelp-mock-alt-api
+#    image: ghcr.io/navikt/sosialhjelp-mock-alt-api/sosialhjelp-mock-alt-api:latest
+#    network_mode: host
+#    healthcheck:
+#      test: [ "CMD", "curl", "--silent", "--fail", "http://localhost:8989/sosialhjelp/mock-alt-api/internal/isAlive" ]
+#      interval: 2s
+#      timeout: 2s
+#      retries: 10
+#    environment:
+#      - INNSYN_API_VIA_DOCKER_COMPOSE=${INNSYN_API_DOCKER_COMPOSE:-true}
+#      - SOKNAD_API_VIA_DOCKER_COMPOSE=${SOKNAD_API_DOCKER_COMPOSE:-true}
+
+  redis:
+    image: redis:7
     ports:
-      - "8989:8989"
-    networks:
-      digisos.docker-internal:
-        aliases:
-          - sosialhjelp-mock-alt-api.digisos.docker-internal
-    healthcheck:
-      test: [ "CMD", "curl", "--silent", "--fail", "http://localhost:8989/sosialhjelp/mock-alt-api/internal/isAlive" ]
-      interval: 2s
-      timeout: 2s
-      retries: 10
+      - "6379:6379"
+
+  mock-oauth2-server:
+    image: ghcr.io/navikt/mock-oauth2-server:2.1.8
+    ports:
+      - "8888:8080"
     environment:
-      - INNSYN_API_VIA_DOCKER_COMPOSE=${INNSYN_API_DOCKER_COMPOSE:-true}
-      - SOKNAD_API_VIA_DOCKER_COMPOSE=${SOKNAD_API_DOCKER_COMPOSE:-true}
+      JSON_CONFIG_PATH: "/tmp/mock-oauth2-server_config.json"
+    configs:
+      - source: mock-oauth2-config
+        target: /tmp/mock-oauth2-server_config.json
+      - source: login_html
+        target: /tmp/login.html
 
-  sosialhjelp-soknad-api:
-    container_name: sosialhjelp-soknad-api
-    image: ghcr.io/navikt/sosialhjelp-soknad-api/sosialhjelp-soknad-api:latest
+  wonderwall:
+    image: ghcr.io/nais/wonderwall:latest
     ports:
-      - "8181:8181"
-    networks:
-      digisos.docker-internal:
-        aliases:
-          - sosialhjelp-soknad-api.digisos.docker-internal
-    healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:8181/sosialhjelp/soknad-api/internal/isAlive" ]
-      interval: 2s
-      timeout: 2s
-      retries: 10
-    depends_on:
-      sosialhjelp-mock-alt-api:
-        condition: service_healthy
-    env_file:
-      - soknad-api.env
+      - "3000:3000"
+    command: >
+      --auto-login=true
+      --openid.scopes=openid,ks:fiks,husbanken:minbostotte
+      --openid.client-id=default
+      --openid.client-secret=not-so-secret
+      --openid.well-known-url=http://localhost:8888/default/.well-known/openid-configuration
+      --ingress=http://localhost:3000
+      --bind-address=0.0.0.0:3000
+      --upstream-host=nginx:4000
+      --redis.uri=redis://redis:6379
+      --log-level=debug
+      --log-format=text
+    restart: on-failure
+    extra_hosts:
+      # Wonderwall needs to both reach and redirect user agents to the mock-oauth2-server:
+      # - 'mock-oauth2-server:8888' resolves from the container, but is not resolvable for user agents at the host (e.g. during redirects).
+      # - 'localhost:8888' allows user agents to resolve redirects to the mock-oauth2-server, but breaks connectivity from the container itself.
+      # This additional mapping allows the container to reach the mock-oauth2-server at 'localhost' through the host network, as well as allowing user agents to correctly resolve redirects.
+      - localhost:host-gateway
 
-  sosialhjelp-innsyn-api:
-    container_name: sosialhjelp-innsyn-api
-    image: ghcr.io/navikt/sosialhjelp-innsyn-api/sosialhjelp-innsyn-api:latest
+  texas:
+    image: ghcr.io/nais/texas:latest
     ports:
-      - "8080:8080"
-    networks:
-      digisos.docker-internal:
-        aliases:
-          - sosialhjelp-innsyn-api.digisos.docker-internal
-    healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:8080/sosialhjelp/innsyn-api/internal/isAlive" ]
-      interval: 2s
-      timeout: 2s
-      retries: 10
-    depends_on:
-      sosialhjelp-mock-alt-api:
-        condition: service_healthy
-    env_file:
-      - innsyn-api.env
+      - "8081:3000"
+    environment:
+      MASKINPORTEN_ENABLED: true
+      MASKINPORTEN_CLIENT_ID: default
+      MASKINPORTEN_ISSUER: http://localhost:8888/maskinporten
+      MASKINPORTEN_TOKEN_ENDPOINT: http://localhost:8888/maskinporten/token
+      MASKINPORTEN_JWKS_URI: http://localhost:8888/maskinporten/jwks
+      MASKINPORTEN_CLIENT_JWK: '{"p":"_LNnIjBshCrFuxtjUC2KKzg_NTVv26UZh5j12_9r5mYTxb8yW047jOYFEGvIdMkTRLGOBig6fLWzgd62lnLainzV35J6K6zr4jQfTldLondlkldMR6nQrp1KfnNUuRbKvzpNKkhl12-f1l91l0tCx3s4blztvWgdzN2xBfvWV68","kty":"RSA","q":"9MIWsbIA3WjiR_Ful5FM8NCgb6JdS2D6ySHVepoNI-iAPilcltF_J2orjfLqAxeztTskPi45wtF_-eV4GIYSzvMo-gFiXLMrvEa7WaWizMi_7Bu9tEk3m_f3IDLN9lwULYoebkDbiXx6GOiuj0VkuKz8ckYFNKLCMP9QRLFff-0","d":"J6UX848X8tNz-09PFvcFDUVqak32GXzoPjnuDjBsxNUvG7LxenLmM_i8tvYl0EW9Ztn4AiCqJUoHw5cX3jz_mSqGl7ciaDedpKm_AetcZwHiEuT1EpSKRPMmOMQSqcJqXrdbbWB8gdUrnTKZIlJCfj7yqgT16ypC43TnwjA0UwxhG5pHaYjKI3pPdoHg2BzA-iubHjVn15Sz7-pnjBmeGDbEFa7ADY-1yPHCmqqvPKTNhoCNW6RpG34Id9hXslPa3X-7pAhJrDBd0_NPlktSA2rUkifYiZURhHR5ijhe0v3uw6kYP8f_foVm_C8O1ExkxXh9Dg8KDZ89dbsSOtBc0Q","e":"AQAB","use":"sig","kid":"l7C_WJgbZ_6e59vPrFETAehX7Dsp7fIyvSV4XhotsGs","qi":"cQFN5q5WhYkzgd1RS0rGqvpX1AkmZMrLv2MW04gSfu0dDwpbsSAu8EUCQW9oA4pr6V7R9CBSu9kdN2iY5SR-hZvEad5nDKPV1F3TMQYv5KpRiS_0XhfV5PcolUJVO_4p3h8d-mo2hh1Sw2fairAKOzvnwJCQ6DFkiY7H1cqwA54","dp":"YTql9AGtvyy158gh7jeXcgmySEbHQzvDFulDr-IXIg8kjHGEbp0rTIs0Z50RA95aC5RFkRjpaBKBfvaySjDm5WIi6GLzntpp6B8l7H6qG1jVO_la4Df2kzjx8LVvY8fhOrKz_hDdHodUeKdCF3RdvWMr00ruLnJhBPJHqoW7cwE","alg":"RS256","dq":"IZA4AngRbEtEtG7kJn6zWVaSmZxfRMXwvgIYvy4-3Qy2AVA0tS3XTPVfMaD8_B2U9CY_CxPVseR-sysHc_12uNBZbycfcOzU84WTjXCMSZ7BysPnGMDtkkLHra-p1L29upz1HVNhh5H9QEswHM98R2LZX2ZAsn4bORLZ1AGqweU","n":"8ZqUp5Cs90XpNn8tJBdUUxdGH4bjqKjFj8lyB3x50RpTuECuwzX1NpVqyFENDiEtMja5fdmJl6SErjnhj6kbhcmfmFibANuG-0WlV5yMysdSbocd75C1JQbiPdpHdXrijmVFMfDnoZTQ-ErNsqqngTNkn5SXBcPenli6Cf9MTSchZuh_qFj_B7Fp3CWKehTiyBcLlNOIjYsXX8WQjZkWKGpQ23AWjZulngWRektLcRWuEKTWaRBtbAr3XAfSmcqTICrebaD3IMWKHDtvzHAt_pt4wnZ06clgeO2Wbc980usnpsF7g8k9p81RcbS4JEZmuuA9NCmOmbyADXwgA9_-Aw"}'
+      TOKEN_X_ENABLED: true
+      TOKEN_X_CLIENT_ID: default
+      TOKEN_X_ISSUER: http://localhost:8888/tokenx
+      TOKEN_X_TOKEN_ENDPOINT: http://localhost:8888/tokenx/token
+      TOKEN_X_JWKS_URI: http://localhost:8888/tokenx/jwks
+      TOKEN_X_PRIVATE_JWK: '{"p":"_LNnIjBshCrFuxtjUC2KKzg_NTVv26UZh5j12_9r5mYTxb8yW047jOYFEGvIdMkTRLGOBig6fLWzgd62lnLainzV35J6K6zr4jQfTldLondlkldMR6nQrp1KfnNUuRbKvzpNKkhl12-f1l91l0tCx3s4blztvWgdzN2xBfvWV68","kty":"RSA","q":"9MIWsbIA3WjiR_Ful5FM8NCgb6JdS2D6ySHVepoNI-iAPilcltF_J2orjfLqAxeztTskPi45wtF_-eV4GIYSzvMo-gFiXLMrvEa7WaWizMi_7Bu9tEk3m_f3IDLN9lwULYoebkDbiXx6GOiuj0VkuKz8ckYFNKLCMP9QRLFff-0","d":"J6UX848X8tNz-09PFvcFDUVqak32GXzoPjnuDjBsxNUvG7LxenLmM_i8tvYl0EW9Ztn4AiCqJUoHw5cX3jz_mSqGl7ciaDedpKm_AetcZwHiEuT1EpSKRPMmOMQSqcJqXrdbbWB8gdUrnTKZIlJCfj7yqgT16ypC43TnwjA0UwxhG5pHaYjKI3pPdoHg2BzA-iubHjVn15Sz7-pnjBmeGDbEFa7ADY-1yPHCmqqvPKTNhoCNW6RpG34Id9hXslPa3X-7pAhJrDBd0_NPlktSA2rUkifYiZURhHR5ijhe0v3uw6kYP8f_foVm_C8O1ExkxXh9Dg8KDZ89dbsSOtBc0Q","e":"AQAB","use":"sig","kid":"l7C_WJgbZ_6e59vPrFETAehX7Dsp7fIyvSV4XhotsGs","qi":"cQFN5q5WhYkzgd1RS0rGqvpX1AkmZMrLv2MW04gSfu0dDwpbsSAu8EUCQW9oA4pr6V7R9CBSu9kdN2iY5SR-hZvEad5nDKPV1F3TMQYv5KpRiS_0XhfV5PcolUJVO_4p3h8d-mo2hh1Sw2fairAKOzvnwJCQ6DFkiY7H1cqwA54","dp":"YTql9AGtvyy158gh7jeXcgmySEbHQzvDFulDr-IXIg8kjHGEbp0rTIs0Z50RA95aC5RFkRjpaBKBfvaySjDm5WIi6GLzntpp6B8l7H6qG1jVO_la4Df2kzjx8LVvY8fhOrKz_hDdHodUeKdCF3RdvWMr00ruLnJhBPJHqoW7cwE","alg":"RS256","dq":"IZA4AngRbEtEtG7kJn6zWVaSmZxfRMXwvgIYvy4-3Qy2AVA0tS3XTPVfMaD8_B2U9CY_CxPVseR-sysHc_12uNBZbycfcOzU84WTjXCMSZ7BysPnGMDtkkLHra-p1L29upz1HVNhh5H9QEswHM98R2LZX2ZAsn4bORLZ1AGqweU","n":"8ZqUp5Cs90XpNn8tJBdUUxdGH4bjqKjFj8lyB3x50RpTuECuwzX1NpVqyFENDiEtMja5fdmJl6SErjnhj6kbhcmfmFibANuG-0WlV5yMysdSbocd75C1JQbiPdpHdXrijmVFMfDnoZTQ-ErNsqqngTNkn5SXBcPenli6Cf9MTSchZuh_qFj_B7Fp3CWKehTiyBcLlNOIjYsXX8WQjZkWKGpQ23AWjZulngWRektLcRWuEKTWaRBtbAr3XAfSmcqTICrebaD3IMWKHDtvzHAt_pt4wnZ06clgeO2Wbc980usnpsF7g8k9p81RcbS4JEZmuuA9NCmOmbyADXwgA9_-Aw"}'
+      BIND_ADDRESS: 0.0.0.0:3000
+    stop_grace_period: 1s
+    restart: on-failure
+    extra_hosts:
+      - localhost:host-gateway
 
-  sosialhjelp-modia-api:
-    container_name: sosialhjelp-modia-api
-    image: ghcr.io/navikt/sosialhjelp-modia-api/sosialhjelp-modia-api:latest
+
+  echo:
+    image: mendhak/http-https-echo:30
     ports:
-      - "8383:8383"
-    networks:
-      digisos.docker-internal:
-        aliases:
-          - sosialhjelp-modia-api.digisos.docker-internal
-    healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 http://localhost:8080/sosialhjelp/modia-api/internal/isAlive" ]
-      interval: 2s
-      timeout: 2s
-      retries: 10
-    depends_on:
-      sosialhjelp-mock-alt-api:
-        condition: service_healthy
-    env_file:
-      - modia-api.env
+      - "3100:3100"
+    environment:
+      HTTP_PORT: 3100
+      JWT_HEADER: Authorization
+      LOG_IGNORE_PATH: /
 
-  fagsystem-mock:
-    container_name: fagsystem-mock
-    image: ghcr.io/navikt/sosialhjelp-fagsystem-mock/sosialhjelp-fagsystem-mock:latest
+  nginx:
+    image: nginx:latest
     ports:
-      - "3009:3000"
-    networks:
-      digisos.docker-internal:
-        aliases:
-          - fagsystem-mock.digisos.docker-internal
+      - "4000:4000"
+    restart: unless-stopped
+    configs:
+      - source: nginx_conf
+        target: /etc/nginx/nginx.conf
+    extra_hosts:
+      - host-machine:host-gateway
 
-networks:
-  digisos.docker-internal:
-
+configs:
+  nginx_conf:
+    file: ./nginx.conf
+  login_html:
+    file: ./login.html
+  mock-oauth2-config:
+    file: ./mock-oauth2-server_config.json

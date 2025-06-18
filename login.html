@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hi</title>
+  </head>
+  <body style="width: 100vw; height: 100vh; background-color: #227; color: #eee; padding: 8rem;">
+    <script>
+      document.addEventListener("DOMContentLoaded", (event) => {
+        const params = new URLSearchParams(window.location.search);
+
+        setTimeout(() => document.getElementById("loginForm").submit(), 1000)
+      });
+    </script>
+    <div style="">
+      <h1 style="font-family: sans-serif; line-height: 1.5em;">digisos oauth2 mock</h1>
+      <h2 style="font-family: sans-serif; line-height: 1.5em;">logger deg inn som<br/>Standard Standardsen...</h2>
+    </div>
+      <form id="loginForm" method="post">
+        <input type="hidden" name="username" value="26504547549"/>
+        <input type="hidden" name="claims" value='{"pid":"26504547549", "acr": "idporten-loa-high", "client_id": "default"}' />
+      </form>
+  </body>
+</html>
