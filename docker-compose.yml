@@ -4,18 +4,18 @@ services:
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt:latest
     network_mode: host
 
-#  sosialhjelp-mock-alt-api:
-#    container_name: sosialhjelp-mock-alt-api
-#    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:latest
-#    network_mode: host
-#    healthcheck:
-#      test: [ "CMD", "curl", "--silent", "--fail", "http://localhost:8989/sosialhjelp/mock-alt-api/internal/isAlive" ]
-#      interval: 2s
-#      timeout: 2s
-#      retries: 10
-#    environment:
-#      - INNSYN_API_VIA_DOCKER_COMPOSE=${INNSYN_API_DOCKER_COMPOSE:-true}
-#      - SOKNAD_API_VIA_DOCKER_COMPOSE=${SOKNAD_API_DOCKER_COMPOSE:-true}
+  sosialhjelp-mock-alt-api:
+    container_name: sosialhjelp-mock-alt-api
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:latest
+    network_mode: host
+    healthcheck:
+      test: [ "CMD", "curl", "--silent", "--fail", "http://localhost:8989/sosialhjelp/mock-alt-api/internal/isAlive" ]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+    environment:
+      - INNSYN_API_VIA_DOCKER_COMPOSE=${INNSYN_API_DOCKER_COMPOSE:-true}
+      - SOKNAD_API_VIA_DOCKER_COMPOSE=${SOKNAD_API_DOCKER_COMPOSE:-true}
 
   redis:
     image: redis:7
@@ -23,7 +23,7 @@ services:
       - "6379:6379"
 
   mock-oauth2-server:
-    image: ghcr.io/navikt/mock-oauth2-server:2.1.8
+    image: ghcr.io/navikt/mock-oauth2-server:2.2.1
     ports:
       - "8888:8080"
     environment:
