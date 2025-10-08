@@ -81,6 +81,16 @@ services:
     extra_hosts:
       - localhost:host-gateway
 
+  postgres:
+    container_name: postgres
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=soknad1234
+      - POSTGRES_USER=soknad
+      - POSTGRES_DB=soknaddb
 
   echo:
     image: mendhak/http-https-echo:30
@@ -109,3 +119,5 @@ configs:
     file: ./login.html
   mock-oauth2-config:
     file: ./mock-oauth2-server_config.json
+
+
