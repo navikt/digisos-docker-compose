@@ -18,11 +18,13 @@ services:
       - SOKNAD_API_VIA_DOCKER_COMPOSE=${SOKNAD_API_DOCKER_COMPOSE:-true}
 
   redis:
+    container_name: redis
     image: redis:7
     ports:
       - "6379:6379"
 
   mock-oauth2-server:
+    container_name: mock-oauth2-server
     image: ghcr.io/navikt/mock-oauth2-server:2.2.1
     ports:
       - "8888:8080"
@@ -35,6 +37,7 @@ services:
         target: /tmp/login.html
 
   wonderwall:
+    container_name: wonderwall
     image: ghcr.io/nais/wonderwall:latest
     ports:
       - "3000:3000"
@@ -59,6 +62,7 @@ services:
       - localhost:host-gateway
 
   texas:
+    container_name: texas
     image: ghcr.io/nais/texas:latest
     ports:
       - "8081:3000"
@@ -83,7 +87,7 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres
+    image: postgres:16
     restart: always
     ports:
       - "5432:5432"
@@ -92,16 +96,8 @@ services:
       - POSTGRES_USER=soknad
       - POSTGRES_DB=soknaddb
 
-  echo:
-    image: mendhak/http-https-echo:30
-    ports:
-      - "3100:3100"
-    environment:
-      HTTP_PORT: 3100
-      JWT_HEADER: Authorization
-      LOG_IGNORE_PATH: /
-
   nginx:
+    container_name: nginx
     image: nginx:latest
     ports:
       - "4000:4000"
