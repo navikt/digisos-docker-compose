@@ -7,7 +7,8 @@ services:
   sosialhjelp-mock-alt-api:
     container_name: sosialhjelp-mock-alt-api
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:latest
-    network_mode: host
+    ports:
+      - "8989:8989"
     healthcheck:
       test: [ "CMD", "curl", "--silent", "--fail", "http://localhost:8989/sosialhjelp/mock-alt-api/internal/isAlive" ]
       interval: 2s
