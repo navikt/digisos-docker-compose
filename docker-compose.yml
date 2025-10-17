@@ -109,6 +109,66 @@ services:
     extra_hosts:
       - host-machine:host-gateway
 
+  tusd:
+    image: tusproject/tusd:latest
+    container_name: tusd_server
+    ports:
+      - "8084:8084"
+    volumes:
+      - "./tusd-data:/tusd-data"
+    entrypoint: [ "tusd" ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command:
+      - "-host=0.0.0.0"
+      - "-port=8084"
+      - "-hooks-http=http://host.docker.internal:3007/tus-hooks"
+      - "-hooks-http-forward-headers=Authorization"
+      - "-base-path=/sosialhjelp/tusd"
+      - "-hooks-enabled-events=pre-create,post-create,post-finish,pre-terminate,post-terminate,pre-finish"
+      - "-upload-dir=/tusd-data"
+      - "-behind-proxy"
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: gotenberg
+    ports:
+      - "3010:3000"
+    volumes:
+      - "/tmp:/dockerVolume"
+
+  postgres-upload:
+    image: postgres:17
+    container_name: postgres-upload
+    restart: always
+    environment:
+      POSTGRES_DB: sosialhjelp-upload
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "54322:5432"
+
+
+  sosialhjelp-upload:
+    container_name: sosialhjelp-upload
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-upload:latest
+    depends_on:
+      - postgres-upload
+      - mock-oauth2-server
+    ports:
+      - "3007:3007"
+    healthcheck:
+      test: [ "CMD", "curl", "--silent", "--fail", "http://localhost:3007/sosialhjelp/upload/internal/isAlive" ]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+    volumes:
+      - "./tusd-data:/tusd-data"
+      - "/tmp/:/tmp/"
+    environment:
+      POSTGRES_JDBC_URL: jdbc:postgresql://postgres-upload:5432/sosialhjelp-upload
+      IDPORTEN_JWKS_URI: http://mock-oauth2-server:8080/default/jwks
+
 configs:
   nginx_conf:
     file: ./nginx.conf
