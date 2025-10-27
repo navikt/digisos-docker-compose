@@ -1,6 +1,13 @@
 # digisos-docker-compose
 Docker-compose oppsett for digisos. For å gjøre lokal utvikling enklere.
 
+## Tusd/upload og mappe for lagring av filer
+Man må gi tilgang til ./tusd-data for at tusd/upload containeren skal kunne lagre filer lokalt. Kjør følgende kommando i terminalen, dette trengs kun én gang:
+
+```shell
+sudo chmod -R 777 ./tusd-data
+```
+
 ## Eksempler
 
 For å starte alle tjenester:
