@@ -1,6 +1,7 @@
 services:
   sosialhjelp-mock-alt:
     container_name: sosialhjelp-mock-alt
+    platform: linux/amd64
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt:latest
     network_mode: host
 
