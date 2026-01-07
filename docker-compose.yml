@@ -1,4 +1,18 @@
 services:
+  sosialhjelp-innsyn-api:
+    container_name: innsyn-api
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-innsyn-api:2025.11.27-14.09-3fa6bbb
+    depends_on:
+      - mock-oauth2-server
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: "mock-alt,log-console"
+      IDPORTEN_ISSUER: http://mock-oauth2-server:8080/default
+      mock-alt-api-host: sosialhjelp-mock-alt-api
+    extra_hosts:
+      - localhost:host-gateway
+
   sosialhjelp-mock-alt:
     container_name: sosialhjelp-mock-alt
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt:latest

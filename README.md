@@ -29,6 +29,12 @@ docker-compose up sosialhjelp-mock-alt \
                   sosialhjelp-mock-alt-api
 ```
 
+For å kjøre alle tjenester bortsett fra f.eks. innsyn-api: 
+
+```shell
+docker compose up --scale sosialhjelp-innsyn-api=0 -d
+```
+
 For å hente nyeste versjon av images:
 
 ```shell
