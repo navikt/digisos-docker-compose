@@ -1,7 +1,7 @@
 services:
   sosialhjelp-innsyn-api:
     container_name: innsyn-api
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-innsyn-api:2025.11.27-14.09-3fa6bbb
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-innsyn-api:2026.02.19-07.47-d0cc241
     depends_on:
       - mock-oauth2-server
     ports:
