@@ -1,0 +1,16 @@
+name: Trigger From Repo A
+
+on:
+  repository_dispatch:
+    types:
+      - trigger-from-repo-a
+
+jobs:
+  handle-dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print dispatch payload
+        run: |
+          echo "event action: ${{ github.event.action }}"
+          echo "client payload: ${{ toJson(github.event.client_payload) }}"
+
