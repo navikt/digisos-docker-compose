@@ -139,7 +139,6 @@ services:
       POSTGRES_DB: sosialhjelp-upload
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      CLEAN_ON_START: true
     ports:
       - "54322:5432"
 
@@ -166,6 +165,7 @@ services:
       FIKS_URL: http://sosialhjelp-mock-alt-api:8989/sosialhjelp/mock-alt-api/fiks
       GOTENBERG_URL: http://gotenberg:3000/forms/libreoffice/convert
       NAIS_TOKEN_ENDPOINT: http://texas:3000/api/v1/token
+      CLEAN_ON_START: true
 
 configs:
   nginx_conf:
