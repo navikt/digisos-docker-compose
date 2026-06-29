@@ -5,3 +5,4 @@ out/
 build/
 .env.local
 tusd-data/
+/docker-compose.override.yml
