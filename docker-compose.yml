@@ -1,7 +1,7 @@
 services:
   sosialhjelp-innsyn-api:
     container_name: innsyn-api
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-innsyn-api:2026.04.20-09.54-84e87d4
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-innsyn-api:2026.08.10-09.05-7305328
     depends_on:
       - mock-oauth2-server
     ports:
@@ -15,16 +15,23 @@ services:
 
   sosialhjelp-mock-alt:
     container_name: sosialhjelp-mock-alt
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt:latest
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt:2026.04.14-06.29-a3477b1
     network_mode: host
 
   sosialhjelp-mock-alt-api:
     container_name: sosialhjelp-mock-alt-api
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:2026.04.16-07.12-aef4d70
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:2026.08.12-02.58-65a8a4b
     ports:
       - "8989:8989"
     healthcheck:
-      test: [ "CMD", "curl", "--silent", "--fail", "http://localhost:8989/sosialhjelp/mock-alt-api/internal/isAlive" ]
+      test:
+        [
+          "CMD",
+          "curl",
+          "--silent",
+          "--fail",
+          "http://localhost:8989/sosialhjelp/mock-alt-api/internal/isAlive",
+        ]
       interval: 2s
       timeout: 2s
       retries: 10
@@ -53,7 +60,7 @@ services:
 
   wonderwall:
     container_name: wonderwall
-    image: ghcr.io/nais/wonderwall:latest
+    image: europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall:2026-08-12-102337-967282e
     ports:
       - "3000:3000"
     command: >
@@ -147,17 +154,23 @@ services:
     ports:
       - "54322:5432"
 
-
   sosialhjelp-upload:
     container_name: sosialhjelp-upload
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-upload:latest
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-upload:2026.08.12-02.57-51cc607
     depends_on:
       - postgres-upload
       - mock-oauth2-server
     ports:
       - "3007:3007"
     healthcheck:
-      test: [ "CMD", "curl", "--silent", "--fail", "http://localhost:3007/sosialhjelp/upload/internal/isAlive" ]
+      test:
+        [
+          "CMD",
+          "curl",
+          "--silent",
+          "--fail",
+          "http://localhost:3007/sosialhjelp/upload/internal/isAlive",
+        ]
       interval: 2s
       timeout: 2s
       retries: 10
@@ -179,5 +192,3 @@ configs:
     file: ./login.html
   mock-oauth2-config:
     file: ./mock-oauth2-server_config.json
-
-
