@@ -3,7 +3,8 @@ services:
     container_name: innsyn-api
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-innsyn-api:2026.08.10-09.05-7305328
     depends_on:
-      - mock-oauth2-server
+      mock-oauth2-server:
+        condition: service_healthy
     ports:
       - "8083:8080"
     environment:
@@ -52,6 +53,11 @@ services:
         target: /tmp/mock-oauth2-server_config.json
       - source: login_html
         target: /tmp/login.html
+    healthcheck:
+      test: ["CMD", "wget", "-O", "/dev/null", "http://localhost:8080/default/.well-known/openid-configuration"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
 
   wonderwall:
     container_name: wonderwall
