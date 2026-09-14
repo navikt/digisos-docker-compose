@@ -13,14 +13,9 @@ services:
     extra_hosts:
       - localhost:host-gateway
 
-  sosialhjelp-mock-alt:
-    container_name: sosialhjelp-mock-alt
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt:2026.04.14-06.29-a3477b1
-    network_mode: host
-
   sosialhjelp-mock-alt-api:
     container_name: sosialhjelp-mock-alt-api
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:2026.08.12-02.58-65a8a4b
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:2026.09.03-10.26-013cbca
     ports:
       - "8989:8989"
     healthcheck:
@@ -180,10 +175,15 @@ services:
     environment:
       POSTGRES_JDBC_URL: jdbc:postgresql://postgres-upload:5432/sosialhjelp-upload
       IDPORTEN_JWKS_URI: http://mock-oauth2-server:8080/default/jwks
+      TOKEN_X_JWKS_URI: http://mock-oauth2-server:8080/tokenx/jwks
+      TOKEN_X_ISSUER: http://localhost:8888/tokenx
+      TOKEN_X_CLIENT_ID: local:teamdigisos:sosialhjelp-upload
       FIKS_URL: http://sosialhjelp-mock-alt-api:8989/sosialhjelp/mock-alt-api/fiks
       GOTENBERG_URL: http://gotenberg:3000/forms/libreoffice/convert
       NAIS_TOKEN_ENDPOINT: http://texas:3000/api/v1/token
       CLEAN_ON_START: true
+    extra_hosts:
+      - localhost:host-gateway
 
 configs:
   nginx_conf:
