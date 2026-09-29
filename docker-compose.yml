@@ -34,6 +34,14 @@ services:
       - INNSYN_API_VIA_DOCKER_COMPOSE=${INNSYN_API_DOCKER_COMPOSE:-true}
       - SOKNAD_API_VIA_DOCKER_COMPOSE=${SOKNAD_API_DOCKER_COMPOSE:-true}
 
+  sosialhjelp-mock-alt:
+    container_name: sosialhjelp-mock-alt
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt:2026.09.29-14.24-7acf986
+    depends_on:
+      - sosialhjelp-mock-alt-api
+    ports:
+      - "3008:3008"
+
   redis:
     container_name: redis
     image: redis:7
