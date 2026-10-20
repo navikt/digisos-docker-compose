@@ -1,23 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="no">
   <head>
-    <title>Hi</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Digisos OAuth2 mock</title>
   </head>
-  <body style="width: 100vw; height: 100vh; background-color: #227; color: #eee; padding: 8rem;">
-    <script>
-      document.addEventListener("DOMContentLoaded", (event) => {
-        const params = new URLSearchParams(window.location.search);
-
-        setTimeout(() => document.getElementById("loginForm").submit(), 1000)
-      });
-    </script>
-    <div style="">
-      <h1 style="font-family: sans-serif; line-height: 1.5em;">digisos oauth2 mock</h1>
-      <h2 style="font-family: sans-serif; line-height: 1.5em;">logger deg inn som<br/>Standard Standardsen...</h2>
-    </div>
-      <form id="loginForm" method="post">
-        <input type="hidden" name="username" value="26504547549"/>
-        <input type="hidden" name="claims" value='{"pid":"26504547549", "acr": "idporten-loa-high", "client_id": "default"}' />
+  <body>
+    <p id="status">Sender deg til mock-alt...</p>
+    <form id="fallback" method="post" hidden>
+      <input type="hidden" name="username" value="26504547549" />
+      <input type="hidden" name="claims" value='{"pid":"26504547549","acr":"idporten-loa-high","client_id":"default"}' />
+      <button type="submit">Logg inn som Standard Standardsen</button>
+    </form>
+    <noscript>
+      <form method="post">
+        <input type="hidden" name="username" value="26504547549" />
+        <input type="hidden" name="claims" value='{"pid":"26504547549","acr":"idporten-loa-high","client_id":"default"}' />
+        <button type="submit">Logg inn som Standard Standardsen</button>
       </form>
+    </noscript>
+    <script>
+      (() => {
+        const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+        const mockAlt = isLocal
+          ? 'http://localhost:3008/sosialhjelp/mock-alt'
+          : 'https://digisos.ekstern.dev.nav.no/sosialhjelp/mock-alt';
+        const status = document.getElementById('status');
+        const fallback = document.getElementById('fallback');
+
+        fetch(`${mockAlt}/`, { mode: 'no-cors' })
+          .then(() => {
+            const login = new URL(`${mockAlt}/login`);
+            login.searchParams.set('returnTo', window.location.href);
+            window.location.replace(login.href);
+          })
+          .catch(() => {
+            status.textContent = 'Kunne ikke nå mock-alt. Du kan logge inn som Standard Standardsen.';
+            fallback.hidden = false;
+          });
+      })();
+    </script>
   </body>
 </html>

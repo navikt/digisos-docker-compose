@@ -22,11 +22,11 @@ Du kan hente miljøvariabler fra en env-fil, bruk `--env-file`
 docker-compose --env-file local.env up
 ```
 
-For å starte et subsett av tjenester, spesifiser dem etter «up»:
+For å starte mock-alt med API-et:
 
 ```shell\
 docker-compose up sosialhjelp-mock-alt \
-                  sosialhjelp-mock-alt-api
+                   sosialhjelp-mock-alt-api
 ```
 
 For å kjøre alle tjenester bortsett fra f.eks. innsyn-api: 
@@ -42,6 +42,13 @@ docker-compose pull
 ```
 
 ## Autentisering
+
+Mock-oauth2-serveren sender deg til mock-alt. Der velger du en person for å logge
+inn gjennom Wonderwall. Du kan opprette og redigere personer fra samme side. Etter
+lagring går du tilbake til innloggingen og velger personen.
+
+`sosialhjelp-mock-alt` bruker image-taggen `latest`. Bytt til en bestemt GAR-tag i
+`docker-compose.yml` hvis du trenger en bestemt versjon.
 
 For å laste ned images fra Github Container Registry, må man være autentisert.
 
