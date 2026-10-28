@@ -15,7 +15,7 @@ services:
 
   sosialhjelp-mock-alt-api:
     container_name: sosialhjelp-mock-alt-api
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:2026.10.08-11.30-edaf2b1
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:2026.10.28-02.16-e93c897
     ports:
       - "8989:8989"
     healthcheck:
