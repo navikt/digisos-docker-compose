@@ -17,7 +17,7 @@ services:
 
   sosialhjelp-mock-alt-api:
     container_name: sosialhjelp-mock-alt-api
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:2026.11.05-02.15-656bbb5
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-mock-alt-api:2026.11.05-10.36-3c9e277
     ports:
       - "8989:8989"
     healthcheck:
@@ -65,7 +65,7 @@ services:
 
   wonderwall:
     container_name: wonderwall
-    image: europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall:2026-10-29-103732-dcfa5a5
+    image: europe-north1-docker.pkg.dev/nais-io/nais/images/wonderwall:2026-11-05-100718-eae161d
     ports:
       - "3000:3000"
     command: >
