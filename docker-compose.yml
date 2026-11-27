@@ -3,7 +3,10 @@ services:
     container_name: innsyn-api
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigisos/sosialhjelp-innsyn-api:2026.11.17-11.14-c099b2d
     depends_on:
-      - mock-oauth2-server
+      mock-oauth2-server:
+        condition: service_started
+      postgres-innsyn:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
@@ -12,6 +15,8 @@ services:
       mock-alt-api-host: sosialhjelp-mock-alt-api
       UPLOAD_ENDPOINT_URL: http://sosialhjelp-upload:3007
       UPLOAD_AUDIENCE: local:teamdigisos:sosialhjelp-upload
+      PGJDBCURL: jdbc:postgresql://postgres-innsyn:5432/sosialhjelp-innsyn-api?user=postgres&password=${INNSYN_POSTGRES_PASSWORD:-postgres}
+      READWRITE_PGJDBCURL: jdbc:postgresql://postgres-innsyn:5432/sosialhjelp-innsyn-api?user=postgres&password=${INNSYN_POSTGRES_PASSWORD:-postgres}
     extra_hosts:
       - localhost:host-gateway
 
@@ -117,17 +122,6 @@ services:
     extra_hosts:
       - localhost:host-gateway
 
-  postgres:
-    container_name: postgres
-    image: postgres:16
-    restart: always
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_PASSWORD=soknad1234
-      - POSTGRES_USER=soknad
-      - POSTGRES_DB=soknaddb
-
   nginx:
     container_name: nginx
     image: nginx:latest
@@ -147,6 +141,33 @@ services:
       - "3010:3000"
     volumes:
       - "/tmp:/dockerVolume"
+
+  postgres-soknad:
+    container_name: postgres-soknad
+    image: postgres:16
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=soknad1234
+      - POSTGRES_USER=soknad
+      - POSTGRES_DB=soknaddb
+
+  postgres-innsyn:
+    image: postgres:18
+    container_name: postgres-innsyn
+    restart: always
+    environment:
+      POSTGRES_DB: sosialhjelp-innsyn-api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${INNSYN_POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "127.0.0.1:54323:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sosialhjelp-innsyn-api"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
 
   postgres-upload:
     image: postgres:17

@@ -41,6 +41,31 @@ For å hente nyeste versjon av images:
 docker-compose pull
 ```
 
+## Postgres for innsyn-api
+
+`postgres-innsyn` bruker Postgres 18 og databasen `sosialhjelp-innsyn-api`.
+Start databasen alene hvis du kjører innsyn-api fra IDE:
+
+```shell
+docker compose up -d postgres-innsyn
+```
+
+Sett disse miljøvariablene i kjørekonfigurasjonen for innsyn-api:
+
+```dotenv
+PGJDBCURL=jdbc:postgresql://localhost:54323/sosialhjelp-innsyn-api?user=postgres&password=postgres
+READWRITE_PGJDBCURL=jdbc:postgresql://localhost:54323/sosialhjelp-innsyn-api?user=postgres&password=postgres
+```
+
+Porten er bare tilgjengelig på localhost. Standardbruker og lokalt utviklingspassord er `postgres`.
+Du kan overstyre passordet med `INNSYN_POSTGRES_PASSWORD` i Compose-miljøet; oppdater da også
+tilkoblingsvariablene i IDE. Bruk URL-sikre tegn (bokstaver, tall, bindestrek og understrek) i dette
+lokale passordet, siden Compose setter det direkte inn i JDBC-URL-ene.
+
+Når innsyn-api kjører i Compose, bruker den `postgres-innsyn:5432` og venter til databasen er klar.
+Med profilen `mock-alt` sletter og gjenoppretter Flyway skjemaet ved hver applikasjonsstart.
+Bruk bare denne databasen til lokale testdata, aldri data som må beholdes.
+
 ## Autentisering
 
 Mock-oauth2-serveren sender deg til mock-alt. Der velger du en person for å logge
